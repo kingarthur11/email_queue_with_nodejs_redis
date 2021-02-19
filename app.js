@@ -1,8 +1,9 @@
 const express = require('express')
-const client = require('./redisDatabase')
+const client = require('./helper/redisDatabase')
 const nodemailer = require('nodemailer')
 const Queue = require('bull')
 const cron = require('node-cron')
+require('dotenv').config()
 
 const PORT = process.env.PORT || 5000;
 
@@ -39,17 +40,17 @@ function sendMail (email) {
         service: 'gamil',
         auth: {
             user: 'arthurorduh2@gmail.com',
-            pass: 'Chukwudi44'
+            pass: process.env.EMAIL_PASSWORD
         }
     };
-    cron.schedule('1 * * * *', () => {
+    
         nodemailer.createTransport(mailConfig).sendMail(mailOptions, (err, info) => {
         if (error) {
             reject(error);
         } else {
             resolve('Email sent: ' + info.response)
         }
-    })
+   
 })
     
 })}
