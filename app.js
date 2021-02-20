@@ -11,28 +11,75 @@ const sendMailQueue = new Queue('sendMail', {
     redis: {
         host: '127.0.0.1',
         port: 6379,
-    }
-})
-// const data = {
-//     email: 'arthurorduh@gmail.com'
-// }
-
+}})
 const options = {
     delay: 2000,
     attempts: 2
 }
-
 app.post('/send', function(req, res, next) {
     const data = req.body
     sendMailQueue.add(data, options);
-    // console.log(sendMailQueue)
+    console.log(sendMailQueue)
+})
+sendMailQueue.process(async job => {
+    return await sendMail(job.data.email)
+})
+function sendMail (email) {
+    return new Promise((resolve, reject) => {
+    var mailOptions = {
+        from: 'arthurorduh2@gmail.com',
+        to: email,
+        subject: 'sending email using node js',
+        text: 'thank you for your time'
+    }   
+    var mailConfig = {
+        host: 'smtp.gmail.com',
+        port: 465,
+        service: 'gamil',
+        auth: {
+            user: 'arthurorduh2@gmail.com',
+            pass: process.env.EMAIL_PASSWORD
+        }
+    };  
+    nodemailer.createTransport(mailConfig).sendMail(mailOptions, (error, info) => {
+        if (error) {
+            reject(error);
+        } else {
+            resolve('Email sent: ' + info.response)
+        }
+    })
+})}
+app.listen(5000, () => {
+console.log(`App listening on port ${PORT}`)
 })
 
+
+
+
+
+
 // var job = new cron('1 * * * * *', () => {
-    sendMailQueue.process(async job => {
-    return await sendMail(job.data.email)
-    // console.log(job.data.email)
-})
+// sendMailQueue.process(async job => {
+//     return await sendMail(job.data.email)
+    
+// })
+
+// const sendData = cron.schedule('1 * * * *', () => {
+
+
+// app.post('/sendMail', function(req, res, next) {
+//     cron.schedule('5 * * * * *', () => {
+//         sendMailQueue.process( job, jobdone)
+//       });
+
+    // cron.schedule('1 * * * * * ', function() {
+    //     console.log(jobbs);
+    //     sendMailQueue.process(async job => {
+    //     console.log('working')
+        // return await sendMail(job.data.email)
+    //      });
+    // })
+// })
 
 // const sendData = () => {
 //     sendMailQueue.process(async job => {
@@ -43,33 +90,4 @@ app.post('/send', function(req, res, next) {
 
 
 
-    function sendMail (email) {
-        return new Promise((resolve, reject) => {
-        var mailOptions = {
-            from: 'arthurorduh2@gmail.com',
-            to: email,
-            subject: 'sending email using node js',
-            text: 'thank you for your time'
-        }   
-        var mailConfig = {
-            host: 'smtp.gmail.com',
-            port: 465,
-            service: 'gamil',
-            auth: {
-                user: 'arthurorduh2@gmail.com',
-                pass: process.env.EMAIL_PASSWORD
-            }
-        };  
-    nodemailer.createTransport(mailConfig).sendMail(mailOptions, (error, info) => {
-        if (error) {
-            reject(error);
-        } else {
-            resolve('Email sent: ' + info.response)
-        }
-    })
-        
-    })}
-
-app.listen(5000, () => {
-    console.log(`App listening on port ${PORT}`)
-})
+    
